@@ -82,7 +82,7 @@ export default function SignIn() {
 				variant="default"
 				onPress={form.handleSubmit(onSubmit)}
 				disabled={form.formState.isSubmitting}
-				className="web:m-4"
+				className="web:m-4 bg-primary"
 			>
 				{form.formState.isSubmitting ? (
 					<ActivityIndicator size="small" />
