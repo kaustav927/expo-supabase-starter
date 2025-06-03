@@ -56,6 +56,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 	};
 
 	const signIn = async (email: string, password: string) => {
+		console.log("Attempting to sign in with email:", email);
 		const { data, error } = await supabase.auth.signInWithPassword({
 			email,
 			password,
@@ -67,6 +68,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
 		}
 
 		if (data.session) {
+			console.log(
+				"Sign in successful, setting session:",
+				data.session.user.email,
+			);
 			setSession(data.session);
 			console.log("User signed in:", data.user);
 		} else {
@@ -87,22 +92,35 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
 	useEffect(() => {
 		supabase.auth.getSession().then(({ data: { session } }) => {
+			console.log("Initial session check:", !!session);
+			setSession(session);
+			setInitialized(true);
+		});
+
+		const {
+			data: { subscription },
+		} = supabase.auth.onAuthStateChange((_event, session) => {
+			console.log("Auth state change event:", _event, "session:", !!session);
 			setSession(session);
 		});
 
-		supabase.auth.onAuthStateChange((_event, session) => {
-			setSession(session);
-		});
-
-		setInitialized(true);
+		return () => subscription.unsubscribe();
 	}, []);
 
 	useEffect(() => {
 		if (initialized) {
 			SplashScreen.hideAsync();
+			console.log(
+				"Navigation effect - initialized:",
+				initialized,
+				"session:",
+				!!session,
+			);
 			if (session) {
-				router.replace("/");
+				console.log("Redirecting to homepage...");
+				router.push("/homepage");
 			} else {
+				console.log("No session, redirecting to welcome...");
 				router.replace("/welcome");
 			}
 		}

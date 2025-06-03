@@ -13,6 +13,7 @@ export default function AppLayout() {
 		<AuthProvider>
 			<Stack screenOptions={{ headerShown: false, gestureEnabled: false }}>
 				<Stack.Screen name="(protected)" />
+				<Stack.Screen name="homepage" />
 				<Stack.Screen name="welcome" />
 				<Stack.Screen
 					name="sign-up"

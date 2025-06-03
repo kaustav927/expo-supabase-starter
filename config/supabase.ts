@@ -1,4 +1,4 @@
-import { AppState } from "react-native";
+import { AppState, Platform } from "react-native";
 
 import "react-native-get-random-values";
 import * as aesjs from "aes-js";
@@ -52,9 +52,36 @@ class LargeSecureStore {
 	}
 }
 
+// Use different storage for web vs native
+const getStorage = () => {
+	if (Platform.OS === 'web') {
+		// For web, use localStorage directly
+		return {
+			getItem: (key: string) => {
+				if (typeof window !== 'undefined') {
+					return window.localStorage.getItem(key);
+				}
+				return null;
+			},
+			setItem: (key: string, value: string) => {
+				if (typeof window !== 'undefined') {
+					window.localStorage.setItem(key, value);
+				}
+			},
+			removeItem: (key: string) => {
+				if (typeof window !== 'undefined') {
+					window.localStorage.removeItem(key);
+				}
+			},
+		};
+	}
+	// For native, use the secure store
+	return new LargeSecureStore();
+};
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 	auth: {
-		storage: new LargeSecureStore(),
+		storage: getStorage(),
 		autoRefreshToken: true,
 		persistSession: true,
 		detectSessionInUrl: false,
